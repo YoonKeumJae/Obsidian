@@ -1,4 +1,7 @@
 ---
-title: Welcome!
+title: Dean-Network
 ---
-blabla...
+This is main page!
+Welcome
+
+Recent document: [[aa]]
