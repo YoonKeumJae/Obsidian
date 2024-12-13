@@ -2,6 +2,6 @@
 title: Dean-Network
 ---
 This is main page!
-Welcome
+Welcome :)
 
-Recent document: [[aa]]
+

@@ -74,3 +74,106 @@ chords: Chord[]; // 모든 코드 데이터 배열
 
 결국 데이터 구조를 바꾸기로 결정했다. 
 데이터 구조를 바꾸면서 하드코딩 되어있던 기타 코드 표의 좌표도 수정하기로 했다. 
+
+```typescript
+// 모든 코드 데이터 배열
+
+type ChordData = {
+
+chords: Chord[];
+
+};
+
+// 코드 데이터 타입
+
+type Chord = {
+
+renderingInfo: renderingInfo;
+
+stringInfo: stringInfo;
+
+chordInfo: chordInfo;
+
+};
+
+// 초기 렌더링에 필요한 정보
+
+type renderingInfo = {
+
+usingFret: number; // 사용하는 프렛의 갯수 (렌더링 시 최소한으로 보여줄 프렛 갯수, 3 또는 4로 예상됨)
+
+startingFret: number; // 시작 프렛 번호
+
+};
+
+// open string, omit string 표시 정보 [optional]
+
+type stringInfo = {
+
+openStrings?: number[]; // 개방현 배열
+
+omitStrings?: number[]; // 연주하지 않는 줄 배열
+
+};
+
+// 코드 정보
+
+type chordInfo = {
+
+name: string; // 코드 이름
+
+description: string; // 코드 설명
+
+frets: Fret[]; // 운지 정보 배열
+
+};
+
+// 운지 정보
+
+type Fret = {
+
+string: number; // 기타 줄 번호
+
+fret: number; // 프렛 번호
+
+finger: number; // 손가락 번호
+
+barre?: Barre; // 바레 코드 정보 (optional)
+
+};
+
+// 바레 코드 정보
+
+type Barre = {
+
+from_string: number; // 바레 시작 줄
+
+to_string: number; // 바레 끝 줄
+
+};
+
+}
+```
+
+초기 렌더링을 위한 데이터를 추가하였다. 
+
+[[2024-12-13]]
+
+![[Screen Recording 2024-12-13 at 14.20.33.mov]]
+
+기타 코드 생성 방법을 전반적으로 바꾸었다. 
+svg 파일의 좌표를 동적으로 수정했다. 
+사용자가 원하는 대로 기타 코드의 너비, 폰트 크기 등을 바꿀 수 있다. 
+
+막상 만들고 보니 또 다른 걱정이 생겼다. 
+커스텀 할 수 있는 것은 좋지만.. 사용자가 이 기능을 꼭 필요로 할까? 
+설정할 수 있는 항목이 너무 많으니 오히려 어려워하지 않을까? 
+
+일단 이 문제는 천천히 생각해보기로 했다. 
+실제 서비스에 적용하지 못하더라도 본인 스스로가 수정하기에(유지보수하기에) 편하기 때문이다. 
+
+이때까지 개발한 것들 중에서 몇 가지 버그를 고쳐야 한다. 
+
+- svg 요소의 좌표값 기준이 좌상단이다. 즉, 좌측 최상단을 (0, 0)으로 시작한다. 이 때문에 height 값이 낮아질수록 높은 위치에 표현된다. 
+- 손가락 번호를 운지 표시 위에 출력하는 코드가 아직 완성되지 않았다. `<mask>` 태그에 대한 추가적인 학습이 필요하다. 
+
