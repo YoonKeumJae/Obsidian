@@ -219,3 +219,29 @@ firebase와 supabase 중 고민했는데, 사용자 분석과 광고 기능을 �
 가사 검색 기능을 위해 API를 검색해봤는데.. 의외로 찾기 어려웠다. 
 몇 개의 비공식 API가 존재하긴 했으나 외국 곡의 검색만 지원했다. 
 아무래도 Playwright 등을 이용해 직접 구현해야겠다. 
+
+[[2024-12-24]]
+
+현재 기능을 바탕으로 배포를 했지만 구글 검색을 통해 페이지가 노출되지 않는 문제가 있다. 
+SEO(Search Engine optimizing) 작업을 하지 않았기 때문이다. 
+html의 `<meta>` 태그를 다음과 같이 추가했다. 
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="keyword" content="guitar chord, fingerings, guitar diagram, guitar app, guitar chord download, guitar diagram download"/>
+<meta name="description" content="Search & Download guitar chord diagrams for free 😄" />
+<meta name="author" content="Yoon Keum Jae" />
+```
+
+`robots.txt` 파일도 추가했지만 여전히 검색 엔진에 노출되지는 않았다. 
+[Google pagespeed insights](https://pagespeed.web.dev/)를 사용하여 분석을 해보니 `robots.txt`에 문제가 있다고 한다. 
+
+![[Screenshot 2024-12-24 at 11.49.34.png]]
+
+`vite` 앱의 경우 `root` 디렉토리가 아니라 `public` 내에 `robots.txt` 파일이 있어야 한다. 
+이를 수정하고 다시 검사를 해보니 모두 100점을 받을 수 있었다. 
+
+![[Screenshot 2024-12-24 at 13.15.34.png]]
+
+google search console에도 앱 등록을 마쳤고, 며칠 후에 검색이 잘 되는지 확인을 하면 된다. 
+
