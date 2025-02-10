@@ -1,6 +1,38 @@
 ---
 title: "AZ-104: Introduction"
 ---
+# 목차
+
+## 1. Azure 관리자 필수 조건
+- [[1. Azure Resource Manager 사용]]
+- [[2. Azure Cloud Shell 소개]]
+- [[3. Bash 소개]]
+- [[4. PowerShell 소개]]
+## 2. Azure 내 ID 및 거버넌스 관리
+- [[1. Microsoft Entra ID 이해]]
+- [[2. Microsoft Entra ID에서 사용자 및 그룹 관리]]
+- [[3. Azure RBAC로 Azure 리소스 보안]]
+- [[4. 사용자가 MS Entra 셀프 서비스 암호 재설정을 통해 암호를 초기화 할 수 있도록 허용]]
+## 3. Azure 관리자를 위한 VNet 구성 및 관리
+- [[1. 가상 네트워크 구성]]
+- [[2. 네트워크 보안 그룹 구성]]
+## 4. Azure 내 스토리지 구현 및 관리
+
+## 5. Azure 컴퓨팅 리소스 배포 및 관리
+- [[1. Azure Virtual Machines 소개]]
+- [[2. 가상 머신 가용성 구성]]
+- [[3. Azure App Service 요금제 구성]]
+- [[4. Azure App Service 구성]]
+- [[5. Azure Container Instances 구성]]
+## 6. Azure 리소스 모니터링 및 백업
+- [[1. Azure Backup 소개]]
+- [[2. Azure Backup을 사용하여 VM 보호]]
+- [[3. Azure Monitor 소개]]
+- [[4. Azure Monitor 경고를 사용해 인시던트 대응 개선]]
+- [[5. Azure Monitor 로그로 Azure 인프라 분석]]
+
+# 소개
+
 Microsoft Azure의 중급 자격증이다. 
 아래는 [공식 페이지](https://learn.microsoft.com/ko-kr/training/courses/az-104t00)의 설명이다. 
 
