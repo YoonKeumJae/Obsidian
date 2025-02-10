@@ -1,5 +1,5 @@
 ---
-title: Microsoft Ignite 2024 Recap in Daegu
+title: (Cancled) Microsoft Ignite 2024 Recap in Daegu
 ---
 
 ![[KakaoTalk_Photo_2024-12-17-09-33-44 001.jpeg]]
@@ -22,3 +22,5 @@ Copilot에게 자연어로 명령을 하면 자동으로 원하는 앱을 만들
 ---
 
 # Cancled 
+
+***준비 기간, 새로운 커뮤니티 등의 이슈로 인해 캔슬됨***
