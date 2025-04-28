@@ -1,0 +1,122 @@
+---
+title: 2025 Korea MCT Summit
+---
+
+# Semantic Kernel with MCP
+
+## Thinking
+
+Semantic Kernel, MCP를 함께 쓰는 이유? 
+그냥 Claude에서도 여러 도구를 사용할 수 있음. 
+그럼에도 불구하고 Semantic Kernel을 사용하는 이유? 
+여러 모델을 사용할 수 있음. 
+Claude << Claude 모델만 쓸 수 있음. 
+Semantic Kernel의 장점: 여러 모델을 오케스트레이션 + 기존 앱에 AI 기능 추가
+여기에 집중해보자. 
+
+| Semantic Kernel | Claude Desktop |
+| :-------------: | -------------- |
+|     다양한 모델      | only Claude    |
+<details>
+<summary>SK, Claude Desktop 차이에 대한 GPT의 답변</summary>
+요약: Claude에서 MCP를 쓰는 경우, LLM–도구 간 통신이 클라이언트 측(MCP 클라이언트 → MCP 서버)에서 JSON‑RPC(STDIN/​SSE)를 직접 다루도록 설계되어 있으며, 주로 도구 호출 자체에 집중되어 있습니다. 반면 Semantic Kernel(SK)에서는 MCP 서버의 도구들을 `KernelFunction` 추상화로 래핑하고, 자동 함수 호출, 파이프라인 오케스트레이션, 프롬프트 템플릿, 메모리·캐시·필터링·로깅 등 고급 기능을 SDK 차원에서 제공하여, 함수 호출 이상의 AI 에이전트 개발 프레임워크를 구성합니다. 결과적으로 두 환경 모두 “함수 호출”을 수행하지만, 아키텍처 위치·추상화 계층·확장성·관찰 가능성 면에서 차별화됩니다.
+
+## 1. 아키텍처 관점: 어디서 함수 호출을 처리하는가
+
+### 1.1 Claude의 MCP
+
+- MCP는 클라이언트 측에 통합되어, Claude가 MCP 서버와 STDIN/​STDOUT 또는 SSE(JSON‑RPC) 방식으로 직접 대화합니다. 실제로 “Function Calling은 서버 사이드, MCP는 클라이언트 사이드”라는 설명이 있을 정도입니다 .
+    
+- Claude Desktop 앱에 로컬 MCP 서버를 설정하면, GitHub 연동·파일 시스템 접근 같은 도구 호출을 1시간 내에 구성할 수 있도록 지원합니다 .
+    
+
+### 1.2 Semantic Kernel의 MCP
+
+- SK에서는 `McpClient.ListToolsAsync()`로 MCP 서버의 도구 목록을 가져온 뒤, `AsKernelFunction()`을 통해 이를 `KernelFunction`으로 변환해 `kernel.Plugins.AddFromFunctions()`로 등록합니다 [Microsoft for Developers](https://devblogs.microsoft.com/semantic-kernel/integrating-model-context-protocol-tools-with-semantic-kernel-a-step-by-step-guide/?utm_source=chatgpt.com).
+    
+- 함수 호출은 SK 내에서 LLM 실행 설정(`FunctionChoiceBehavior.Auto`)에 따라 자동으로 결정·실행되며, 여러 도구를 체이닝하거나 에이전트(Planner)로 확장할 수 있습니다 [GitHub](https://github.com/microsoft/semantic-kernel/blob/main/python/samples/concepts/mcp/local_agent_with_local_server.py?utm_source=chatgpt.com).
+    
+
+## 2. 추상화 수준 및 SDK 지원
+
+### 2.1 Claude
+
+- Anthropic API의 Tool Use(함수 호출) 기능을 통해 도구를 직접 등록·호출하며, JSON 형식 스키마와 파라미터 타입을 개발자가 직접 명세해야 합니다 .
+    
+- MCP 자체는 프로토콜 규격(API 게이트웨이 역할)으로 제공되며, Tool Use와 병행하여 사용합니다 .
+    
+
+### 2.2 Semantic Kernel
+
+- .NET·Python·Java SDK로서 `Kernel`, `KernelFunction`, `ChatCompletionAgent`, `Planner` 등 고수준 추상화 계층을 제공해, 도구 호출뿐 아니라 복합 워크플로우 구성·프롬프트 관리·메모리 통합이 가능합니다 [Microsoft for Developers](https://devblogs.microsoft.com/semantic-kernel/semantic-kernel-adds-model-context-protocol-mcp-support-for-python/?utm_source=chatgpt.com)[GitHub](https://github.com/LiteObject/mcp-with-semantic-kernel?utm_source=chatgpt.com).
+    
+- SK를 MCP 서버로 노출(`kernel.as_mcp_server()`)하면, Claude 등 다른 MCP 클라이언트가 SK의 함수·프롬프트를 곧바로 사용할 수도 있습니다 [Microsoft for Developers](https://devblogs.microsoft.com/semantic-kernel/semantic-kernel-adds-model-context-protocol-mcp-support-for-python/?utm_source=chatgpt.com).
+    
+
+## 3. 관찰 가능성(Observability) 및 보안
+
+### 3.1 Claude
+
+- 기본적으로 호출 로그·에러 처리는 자체 로그에 의존하며, 파라미터 검증·필터링 기능은 제공되지 않습니다.
+    
+
+### 3.2 Semantic Kernel
+
+- SK는 함수 호출 전 파라미터 필터링·검증, 후 로깅·메트릭 수집을 지원하며, Application Insights 같은 기존 관측 인프라와도 쉽게 연동할 수 있습니다 .
+    
+- 캐싱·재시도 정책도 SDK 차원에서 설정할 수 있어, 안정성과 성능을 동시에 확보할 수 있습니다 [Microsoft for Developers](https://devblogs.microsoft.com/semantic-kernel/semantic-kernel-adds-model-context-protocol-mcp-support-for-python/?utm_source=chatgpt.com).
+    
+
+## 4. 확장성 및 에코시스템
+
+### 4.1 Claude
+
+- MCP 지원 클라이언트(Claude Desktop, CLI) 범위 내에서만 활용 가능하며, 서버 측 커스텀 구현이 필요합니다.
+    
+- 도구 관리·버전 관리 등은 전적으로 개발자 몫입니다.
+    
+
+### 4.2 Semantic Kernel
+
+- 다양한 LLM 백엔드(OpenAI, Azure AI, Ollama 등)를 플러그인 형태로 바꿔 끼울 수 있고, SK에 등록된 도구들을 서로 체이닝하거나 멀티 에이전트 시나리오로 확장하기 쉽습니다 [GitHub](https://github.com/microsoft/semantic-kernel/blob/main/python/samples/concepts/mcp/agent_with_mcp_agent.py?utm_source=chatgpt.com).
+    
+- 커뮤니티 튜토리얼·샘플(.NET, Python)도 풍부해, 빠른 프로토타입부터 프로덕션화까지 원스톱으로 지원합니다 [Systenics Solutions AI](https://systenics.ai/blog/2025-04-10-building-a-model-context-protocol-server-with-net-and-semantic-kernel-integration?utm_source=chatgpt.com).
+    
+
+## 5. 실제 활용 사례
+
+- **Claude + MCP**: GitHub PR 생성, 파일 시스템 관리, Google Drive 연동 등 단일 도구 호출 중심 .
+    
+- **SK + MCP**: 문서 요약 → DB 조회 → 결과 포맷팅 → 알림 전송 같은 멀티스텝 파이프라인 구축, 세션·콘텍스트 유지, 장기 기억(semantic memory) 통합 등이 가능한 에이전트 개발 프레임워크 [GitHub](https://github.com/microsoft/semantic-kernel/blob/main/python/samples/concepts/mcp/local_agent_with_local_server.py?utm_source=chatgpt.com)[Microsoft for Developers](https://devblogs.microsoft.com/semantic-kernel/semantic-kernel-adds-model-context-protocol-mcp-support-for-python/?utm_source=chatgpt.com).
+    
+
+---
+
+결론적으로, Claude에서 MCP를 사용하는 것은 “도구 호출 프로토콜을 이용해 외부 시스템에 접근”하는 수준이라면, Semantic Kernel에서 MCP를 활용하면 “도구 호출을 포함한 AI 워크플로우 전반을 설계·관리·확장”할 수 있는 프레임워크 차원의 통합 경험을 제공합니다.
+</details>
+
+옵시디언 쓰고싶음. 
+옵시디언으로 세컨브레인 어쩌고.. 
+여기에 프롬프트로 제텔카스텐 기법 쓰라고 하자. 
+있어보이는건 다 때려넣는거임. 
+
+MS에서 발표하니까 Teams도 넣을까...?
+"팀즈에 일정 추가하고 옵시디언 캘린더에 넣어줘"
+이런식으로 ㅇㅇ...
+
+웹 검색기능도 넣자 Perplexity
+"검색해서 이 내용 옵시디언에 추가해줘"
+
+## Flow
+
+- Semantic Kernel이 뭔지
+- MCP가 뭔지
+- 그래서 내가 이 앱 만듦 걍 자비스임
+	- 시맨틱 커널, MCP 같이 쓰는 시너지
+	- 어떤 MCP 서버 추가했는지
+- 주의할 점
+	- 보안 (중요)
+- 나중에 추가하고싶은거
+	- IoT 
+		- 애플 홈팟이랑 연동
+		- MCP 서버 없으면 직접 만들어야할듯?
